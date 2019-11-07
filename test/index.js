@@ -446,6 +446,7 @@ contract('BASIC TEST [GRAME]', async accounts => {
 
 
     });
+    
     //따로 진행
     it("18. reclaimToken", async () => {
 
@@ -472,24 +473,39 @@ contract('BASIC TEST [GRAME]', async accounts => {
 
 
     });
-
+    //따로 진행
     it("20. transfer", async () => {
 
     });
-
+    //따로 진행
     it("21. transferFrom", async () => {
 
     });
 
     it("22. transferWithdrawalWallet", async () => {
+      let isdt = await ISDT.deployed();
+      let wWallet = await isdt.withdrawalWallet();
 
+      console.log('wWallet : ', wWallet);
     });
 
     it("23. unblacklist", async () => {
+      let isdt = await ISDT.deployed();
+
+      let isPermitted = await isdt.isPermitted(host1);
+
+      console.log(123, isPermitted);
 
     });
 
     it("24. unpause", async () => {
+      let isdt = await ISDT.deployed();
+
+      let isPaused = await isdt.paused();
+      
+      assert.equal(isPaused, false);
+
+      await isdt.unpause({from: host1}).should.be.fulfilled;
 
     });
 
