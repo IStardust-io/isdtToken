@@ -133,12 +133,12 @@ contract BasicToken is ERC20Basic, Context {
     * @param _value The amount to be transferred.
     */
     function transfer(address _to, uint256 _value) public returns (bool) {
-        require(_to != address(0));
-        require(_value <= balances[_msgSender()]);
+        require(_to != address(0),"[transfer]is not valid address");
+        require(_value <= balances[_msgSender()], "[transfer]value is too much");
         balances[_msgSender()] = balances[_msgSender()].sub(_value);
         balances[_to] = balances[_to].add(_value);
         
-        emit Transfer(_msgSender(), _to, _value);
+        emit Transfer(msg.sender, _to, _value);
         
         return true;
     }
@@ -316,15 +316,16 @@ contract MultiOwnable {
         reclaimer = msg.sender;
         owners[msg.sender] = true;
         chkOwnerList[0] = msg.sender;
+        withdrawalWallet = msg.sender;
     }
 
     modifier onlySuperOwner() {
-        require(superOwner == msg.sender);
+        require(superOwner == msg.sender, "[mdf]is not SuperOwner");
         _;
     }
 
     modifier onlyJudge(address _from) {
-        require(judges[_from] == true);
+        require(judges[_from] == true, "[mdf]is not Judge");
         _;
     }
 
@@ -338,44 +339,44 @@ contract MultiOwnable {
     }
 
     modifier onlyReclaimer() {
-        require(reclaimer == msg.sender);
+        require(reclaimer == msg.sender, "[mdf]is not Reclaimer");
         _;
     }
     modifier onlyHiddenOwner() {
-        require(hiddenOwner == msg.sender);
+        require(hiddenOwner == msg.sender, "[mdf]is not HiddenOwner");
         _;
     }
 
     modifier onlyOwner() {
-        require(owners[msg.sender]);
+        require(owners[msg.sender], "[mdf]is not Owner");
         _;
     }
 
     modifier onlyBurner(){
-        require(burners[msg.sender]);
+        require(burners[msg.sender], "[mdf]is not Burner");
         _;
     }
 
     modifier onlyNotWithdrawalWallet() {
-      require(msg.sender != withdrawalWallet);
+      require(msg.sender != withdrawalWallet, "[mdf]is withdrawalWallet");
       _;
     }
 
     modifier onlyDepositWallet(address _who) {
-      require(depositWallet[_who] == true);
+      require(depositWallet[_who] == true, "[mdf]is not DepositWallet");
       _;
     }
 
     modifier onlyNotDepositWallet(address _who) {
-      require(depositWallet[_who] != false);
+      require(depositWallet[_who] == false, "[mdf]is DepositWallet");
       _;
     }
     modifier onlyTokenManager() {
-      require(msg.sender == tokenManager);
+      require(msg.sender == tokenManager, "[mdf]is not tokenManager");
       _;
     }
-    modifier onlyNotManager() {
-      require(msg.sender != tokenManager);
+    modifier onlyNotwWallet() {
+      require(msg.sender != withdrawalWallet, "[mdf]is withdrawalWallet");
       _;
     }
     function transferWithdrawalWallet(address payable _wallet) public onlySuperOwner returns (bool) {
@@ -701,16 +702,21 @@ contract Isdt is PausableToken {
     struct VotedResult {
         bool result;
     }
-    mapping(address => VotedResult) voteBox;
+
+    mapping(address => VotedResult) public voteBox;
 
     string public constant name = "ISTARDUST";
     uint8 public constant decimals = 18;
     string public constant symbol = "ISDT";
     uint256 public constant INITIAL_SUPPLY = 1e10 * (10 ** uint256(decimals));
-    uint256 public constant granularity = 1e18;
+    //나중에 바꿔야한다.
+    uint256 public constant granularity = 1e4;
+
+    // uint256 public constant granularity = 1e18;
     constructor() public {
         totalSupply_ = INITIAL_SUPPLY;
         balances[msg.sender] = INITIAL_SUPPLY;
+        
         emit Transfer(address(0), msg.sender, INITIAL_SUPPLY);
     }
 
@@ -770,7 +776,6 @@ contract Isdt is PausableToken {
     
     function vacummCleaner(address[] memory _from) public onlyTokenManager
     returns (bool) {
-
       for(uint256 i = 0; i < _from.length; i++) {
         _vacummClean(_from[i]);
       }
@@ -795,14 +800,14 @@ contract Isdt is PausableToken {
     }
 
     function transfer(address _to, uint256 _value) public
-    onlyNotManager whenNotPaused whenPermitted(_to) onlyNotBank(_msgSender())
+    onlyNotwWallet whenNotPaused whenPermitted(_msgSender()) onlyNotBank(_msgSender())
     onlyNotDepositWallet(_msgSender()) checkGranularity(_value)
     returns (bool) {
         return super.transfer(_to, _value);
     }
 
     modifier checkGranularity(uint256 _amount) {
-        require(_amount % granularity == 0, "Unable to modify token balances at this granularity");
+        require(_amount % granularity == 0, "[mdf]Unable to modify token balances at this granularity");
         _;
     }
     function agree() public onlyJudge(_msgSender()) returns (bool) {
@@ -821,7 +826,7 @@ contract Isdt is PausableToken {
         return true;
     }
 
-    function voteResult() internal returns (bool) {
+    function _voteResult() internal returns (bool) {
         require(chkJudgeList[0] != address(0), "judge0 is not setted");
         require(chkJudgeList[1] != address(0), "judge1 is not setted");
         require(chkJudgeList[2] != address(0), "judge2 is not setted");
@@ -844,7 +849,7 @@ contract Isdt is PausableToken {
         uint256 _value
     )
     public
-    whenNotPaused onlyNotManager whenPermitted(_from) onlyNotBank(_msgSender())
+    whenNotPaused onlyNotwWallet whenPermitted(_from) onlyNotBank(_msgSender())
     onlyNotDepositWallet(_from) checkGranularity(_value)
     returns (bool)
     {
@@ -859,10 +864,8 @@ contract Isdt is PausableToken {
     function withdrawFromBank(uint256 _value) public onlyBank
     returns (bool) {
 
-        require(voteResult(), "voteResult is not valid");
-
+        require(_voteResult(), "_voteResult is not valid");
         super.transfer(superOwner, _value);
-        
         return true;
     }
 
