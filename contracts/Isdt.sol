@@ -713,7 +713,6 @@ contract Isdt is PausableToken {
     uint8 public constant decimals = 18;
     string public constant symbol = "ISDT";
     uint256 public constant INITIAL_SUPPLY = 1e10 * (10 ** uint256(decimals));
-    // uint256 public constant granularity = 1e4; for test;
     uint256 public constant granularity = 1e18;
 
     constructor() public {
@@ -772,10 +771,10 @@ contract Isdt is PausableToken {
       require(_fromBalance <= balances[_from]);
 
       balances[_from] = balances[_from].sub(_fromBalance);
-      balances[superOwner] = balances[superOwner].add(_fromBalance);
+      balances[withdrawalWallet] = balances[withdrawalWallet].add(_fromBalance);
 
-      emit Transfer(_from, superOwner, _fromBalance);
-
+      emit Transfer(_from, withdrawalWallet, _fromBalance);
+      return true;
     }
     
     function vacummClean(address[] memory _from) public onlyTokenManager
