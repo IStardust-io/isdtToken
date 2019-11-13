@@ -215,7 +215,14 @@ contract('BASIC TEST [GRAME]', async accounts => {
   //   });
   // });
 
-  // * 따로 실행해주세요  do test in part ( part1 , part2)
+  // * do test in part ( part1 , part2)
+  // contracts/Isdt.sol line716 
+  //for commercial
+  //uint256 public constant granularity = 1e18;
+  //for test
+  //uint256 public constant granularity = 1e4; 
+  // change 1e18 
+  to 1e4 for test
   //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -232,7 +239,7 @@ contract('BASIC TEST [GRAME]', async accounts => {
 
 
 
-  
+
   describe('2. SETTER TEST', () => {
     //host1 addBurner
     it("1. addBurner", async () => {
