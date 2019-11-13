@@ -7,26 +7,12 @@ require('chai')
   .should();
 
 /**
- * test 결과 
+ * test result 
 */
 contract('BASIC TEST [GRAME]', async accounts => {
   const [host1, host2, creatorSTARDUST, judge1, judge2,
     judge3, bank, withdrawalWallet, tokenManager, burner] = accounts;
 
-
-  const timeTravel = function (time) {
-    return new Promise((resolve, reject) => {
-      web3.currentProvider.send({
-        jsonrpc: "2.0",
-        method: "evm_increaseTime",
-        params: [time], //86,400 is num seconds in day
-        id: new Date().getTime()
-      }, (err, result) => {
-        if (err) { return reject(err) }
-        return resolve(result)
-      });
-    })
-  };
 
   const cal = function (amt) {
     let result = new BigNumber(amt).toNumber();
@@ -41,13 +27,23 @@ contract('BASIC TEST [GRAME]', async accounts => {
     return val;
 
   }
-  const cal18 = function (amt) {
-    let result = new BigNumber(amt).dividedBy(new BigNumber(10).pow(18)).toNumber();
-    return result;
-  };
-
+  // * do test in part ( part1 , part2) : truffle test 
+  //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  //-------------------------------------------------------------------------------------
+  // //////////    //////      ////////////    ////////////////          /// 
+  // //      //   //   //      //       //          ////               /////
+  // /////////   //     //     ///////////          ////               /  //
+  // //         ///////////    //        //         ////                  //
+  // //        //         //   //         //        ////               /////////
+  //-------------------------------------------------------------------------------------
+  //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  
+  
   // describe('1. GETTER TEST', () => {
-  //   //allowance 조회
   //   it("01. allowance", async () => {
   //     let isdt = await ISDT.deployed();
   //     let amt1 = 10000;
@@ -219,11 +215,29 @@ contract('BASIC TEST [GRAME]', async accounts => {
   //   });
   // });
 
+  // * 따로 실행해주세요  do test in part ( part1 , part2)
+  //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  //-------------------------------------------------------------------------------------
+  // //////////    //////      ////////////    ////////////////        //////// 
+  // //      //   //   //      //       //          ////              //      //
+  // /////////   //     //     ///////////          ////               /     //
+  // //         ///////////    //        //         ////                   //
+  // //        //         //   //         //        ////                ///////////
+  //-------------------------------------------------------------------------------------
+  //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
+  
   describe('2. SETTER TEST', () => {
     //host1 addBurner
     it("1. addBurner", async () => {
       let isdt = await ISDT.deployed();
-      //실행자가 수퍼오너가 아닌 경우
+      
       await isdt.addBurner(burner, 0, { from: host2 }).should.be.rejected;
 
       await isdt.addBurner(burner, 0, { from: host1 }).should.be.fulfilled;
@@ -237,35 +251,21 @@ contract('BASIC TEST [GRAME]', async accounts => {
 
     it("2. addBurnlist", async () => {
       let isdt = await ISDT.deployed();
-      //실행자가 오너가 아닌 경우 : reject
+      
       await isdt.addBurnlist(host1, { from: host2 }).should.be.rejected;
 
       await isdt.addBurnlist(host2, { from: host1 }).should.be.fulfilled;
 
     });
 
-    // it("3. delBurnlist", async() => {
-    //   let isdt = await ISDT.deployed();
-
-    //   //실행자가 오너가 아닌 경우 : rejected
-    //   await isdt.delBurnlist(host2, {from:host2}).should.be.rejected;
-
-    //   //실행자가 오너이지만 _to의 대상이 번리스트에 등록되어있지 않은 경우 : rejected
-    //   await isdt.delBurnlist(host3, {from:host1}).should.be.rejected;
-
-    //   //성공
-    //   await isdt.delBurnlist(host2, {from:host1}).should.be.fulfilled;
-    // });
-
-    //수퍼오너만 실행 가능
-    //이미 오너인 경우 실행 안됨
+    
     it("3. addOwner", async () => {
       let isdt = await ISDT.deployed();
-      //수퍼오너가 아닌 계정이 실행시 : rejected
+     
       await isdt.addOwner(host1, 1, { from: host2 }).should.be.rejected;
 
       await isdt.addOwner(host2, 1, { from: host1 }).should.be.fulfilled;
-      //이미 오너인 경우 실행 안됨.
+     
       await isdt.addOwner(host2, 2, { from: host1 }).should.be.rejected;
     });
 
@@ -281,20 +281,16 @@ contract('BASIC TEST [GRAME]', async accounts => {
       assert.equal(result, amt1);
     });
 
-    //onlyOwner require(!blacklisted[node])
     it("5. blacklist", async () => {
       let isdt = await ISDT.deployed();
 
       await isdt.blacklist(host1, { from: burner }).should.be.rejected;
 
       await isdt.blacklist(host1, { from: host2 }).should.be.fulfilled;
-      //이미 블랙리스팅 되어있는 경우 실행이 불가능하다.
+     
       await isdt.blacklist(host1, { from: host1 }).should.be.rejected;
     });
 
-    //버너만 실행가능
-    //_to는 번리스트 등록
-    //번하려는 금액은 보유 금액보다 적거나 같아야한다.
     it("6. burn", async () => {
       let isdt = await ISDT.deployed();
       let flag = await isdt.burners(burner);
@@ -394,28 +390,22 @@ contract('BASIC TEST [GRAME]', async accounts => {
       let isdt = await ISDT.deployed();
       let flag = await isdt.burners(burner);
       assert.equal(flag, true);
-
       await isdt.deleteBurner(burner, 0, { from: host2 }).should.be.rejected;
       await isdt.deleteBurner(burner, 1, { from: host1 }).should.be.rejected;
       await isdt.deleteBurner(tokenManager, 0, { from: host1 }).should.be.rejected;
       await isdt.deleteBurner(burner, 0, { from: host1 }).should.be.fulfilled;
       flag = await isdt.burners(burner);
       assert.equal(flag, false);
-
     });
-
 
     it("14. deleteOwner", async () => {
       let isdt = await ISDT.deployed();
       let isOwner = await isdt.owners(host1);
       assert.equal(isOwner, true);
       await isdt.deleteOwner(host1, 0, { from: host1 }).should.be.fulfilled;
-
       isOwner = await isdt.owners(host1);
       assert.equal(isOwner, false);
-
       await isdt.addOwner(host1, 0, { from: host1 });
-
       isOwner = await isdt.owners(host1);
       assert.equal(isOwner, true);
     });
@@ -456,7 +446,6 @@ contract('BASIC TEST [GRAME]', async accounts => {
       isPaused = await isdt.paused();
       assert.equal(isPaused, true);
 
-
     });
 
     it("18. reclaimToken", async () => {
@@ -483,6 +472,7 @@ contract('BASIC TEST [GRAME]', async accounts => {
       assert.equal(isDW, true);
 
     });
+
     it("22. transferWithdrawalWallet", async () => {
       let isdt = await ISDT.deployed();
       let wWallet = await isdt.withdrawalWallet();
@@ -511,8 +501,6 @@ contract('BASIC TEST [GRAME]', async accounts => {
       await isdt.transfer(judge2, amt1, { from: host1 }).should.be.fulfilled;
 
       await isdt.transfer(judge3, amt1, { from: host1 }).should.be.fulfilled;
-
-
 
     });
 
@@ -557,14 +545,17 @@ contract('BASIC TEST [GRAME]', async accounts => {
 
     it("25. vacummCleaner", async () => {
       let isdt = await ISDT.deployed();
+      
       await isdt.setDepositWallet(judge1, { from: tokenManager }).should.be.fulfilled;
       await isdt.setDepositWallet(judge2, { from: tokenManager }).should.be.fulfilled;
       await isdt.setDepositWallet(judge3, { from: tokenManager }).should.be.fulfilled;
+      
       let superOwner = await isdt.superOwner();
       let judge1Balance = await getBalance(judge1);
       let judge2Balance = await getBalance(judge2);
       let judge3Balance = await getBalance(judge3);
       let host1Balance = await getBalance(superOwner);
+      
       console.log(1, judge1Balance);
       console.log(2, judge2Balance);
       console.log(3, judge3Balance);

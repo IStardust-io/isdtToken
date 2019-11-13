@@ -286,7 +286,6 @@ contract MultiOwnable {
     address payable public tokenManager;
     address payable public withdrawalWallet;
     address payable public bank;
-    
     address[MAX_JUDGE] public chkJudgeList;
     address[MAX_BURN] public chkBurnerList;
     address[MAX_OWNER] public chkOwnerList;
@@ -310,6 +309,7 @@ contract MultiOwnable {
     event DelDepositWallet(address indexed _wallet);
     event AddedJudge(address indexed _newJudge, uint8 _number);
     event DeletedJudge(address indexed _newJudge, uint8 _number);
+
     constructor() public {
         hiddenOwner = msg.sender;
         superOwner = msg.sender;
@@ -342,6 +342,7 @@ contract MultiOwnable {
         require(reclaimer == msg.sender, "[mdf]is not Reclaimer");
         _;
     }
+
     modifier onlyHiddenOwner() {
         require(hiddenOwner == msg.sender, "[mdf]is not HiddenOwner");
         _;
@@ -357,11 +358,6 @@ contract MultiOwnable {
         _;
     }
 
-    modifier onlyNotWithdrawalWallet() {
-      require(msg.sender != withdrawalWallet, "[mdf]is withdrawalWallet");
-      _;
-    }
-
     modifier onlyDepositWallet(address _who) {
       require(depositWallet[_who] == true, "[mdf]is not DepositWallet");
       _;
@@ -371,14 +367,17 @@ contract MultiOwnable {
       require(depositWallet[_who] == false, "[mdf]is DepositWallet");
       _;
     }
+
     modifier onlyTokenManager() {
       require(msg.sender == tokenManager, "[mdf]is not tokenManager");
       _;
     }
+
     modifier onlyNotwWallet() {
       require(msg.sender != withdrawalWallet, "[mdf]is withdrawalWallet");
       _;
     }
+
     function transferWithdrawalWallet(address payable _wallet) public onlySuperOwner returns (bool) {
         
         require(withdrawalWallet != _wallet);
@@ -390,6 +389,7 @@ contract MultiOwnable {
         return true;
         
     }
+
     function transferTokenManagerRole(address payable _newTokenManager) public onlySuperOwner returns (bool) {
         require(tokenManager != _newTokenManager);
 
@@ -427,7 +427,7 @@ contract MultiOwnable {
     }
 
     function deleteJudge(address _toDeleteJudge, uint8 _num) public
-    onlySuperOwner returns (bool){
+    onlySuperOwner returns (bool) {
         require(_num < MAX_JUDGE);
         require(_toDeleteJudge != address(0));
         require(chkJudgeList[_num] == _toDeleteJudge);
@@ -441,7 +441,6 @@ contract MultiOwnable {
         return true;
     }
 
-
     function setDepositWallet(address _depositWallet) public
     onlyTokenManager returns (bool) {
         
@@ -452,8 +451,8 @@ contract MultiOwnable {
         emit SetDepositWallet(_depositWallet);
         
         return true;
-        
     }
+
     function delDepositWallet(address _depositWallet) public
     onlyTokenManager returns (bool) {
         
@@ -468,6 +467,7 @@ contract MultiOwnable {
 
     function changeSuperOwnership(address payable newSuperOwner) public onlyHiddenOwner returns(bool) {
         require(newSuperOwner != address(0));
+        
         superOwner = newSuperOwner;
         
         emit ChangedSuperOwner(superOwner);
@@ -477,6 +477,7 @@ contract MultiOwnable {
     
     function changeHiddenOwnership(address payable newHiddenOwner) public onlyHiddenOwner returns(bool) {
         require(newHiddenOwner != address(0));
+        
         hiddenOwner = newHiddenOwner;
         
         emit ChangedHiddenOwner(hiddenOwner);
@@ -507,7 +508,7 @@ contract MultiOwnable {
         return true;
     }
 
-    function deleteBurner(address burner, uint8 num) public onlySuperOwner returns (bool){
+    function deleteBurner(address burner, uint8 num) public onlySuperOwner returns (bool) {
         require(num < MAX_BURN);
         require(burner != address(0));
         require(chkBurnerList[num] == burner);
@@ -521,7 +522,7 @@ contract MultiOwnable {
         return true;
     }
 
-    function addOwner(address owner, uint8 num) public onlySuperOwner returns (bool) {        
+    function addOwner(address owner, uint8 num) public onlySuperOwner returns (bool) {
         require(num < MAX_OWNER);
         require(owner != address(0));
         require(chkOwnerList[num] == address(0));
@@ -539,7 +540,9 @@ contract MultiOwnable {
         require(num < MAX_OWNER);
         require(owner != address(0));
         require(chkOwnerList[num] == owner);
+
         owners[owner] = false;
+
         chkOwnerList[num] = address(0);
         
         emit DeletedOwner(owner);
@@ -570,9 +573,9 @@ contract HasNoEther is MultiOwnable {
     * @dev Disallows direct send by settings a default function without the `payable` flag.
     */
     function() external {
+
     }
     
-
     function reclaimToken(ERC20Basic _token) external onlyReclaimer returns(bool){
         
         uint256 balance = _token.balanceOf(address(this));
@@ -604,6 +607,7 @@ contract Blacklist is MultiOwnable {
 
     function blacklist(address node) public onlyOwner returns (bool) {
         require(!blacklisted[node]);
+
         blacklisted[node] = true;
         emit Blacklisted(node);
 
@@ -612,6 +616,7 @@ contract Blacklist is MultiOwnable {
    
     function unblacklist(address node) public onlySuperOwner returns (bool) {
         require(blacklisted[node]);
+
         blacklisted[node] = false;
         emit Whitelisted(node);
 
@@ -659,7 +664,7 @@ contract PausableToken is StandardToken, HasNoEther, Burnlist {
     event Unpaused(address addr);
 
     constructor() public {
-        // openingTime = block.timestamp;
+
     }
     
     modifier whenNotPaused() {
@@ -667,7 +672,7 @@ contract PausableToken is StandardToken, HasNoEther, Burnlist {
         _;
     }
    
-    function pause() public onlySuperOwner returns (bool) {
+    function pause() public onlyOwner returns (bool) {
         
         require(!paused);
 
@@ -698,7 +703,6 @@ contract Isdt is PausableToken {
     event Withdrawed(address indexed _tokenManager, address indexed _withdrawedWallet, address indexed _to, uint256 _value);
     event Burnt(address indexed burner, uint256 value);
     event Mint(address indexed minter, uint256 value);
-    
     struct VotedResult {
         bool result;
     }
@@ -709,10 +713,9 @@ contract Isdt is PausableToken {
     uint8 public constant decimals = 18;
     string public constant symbol = "ISDT";
     uint256 public constant INITIAL_SUPPLY = 1e10 * (10 ** uint256(decimals));
-    //나중에 바꿔야한다.
-    uint256 public constant granularity = 1e4;
+    // uint256 public constant granularity = 1e4; for test;
+    uint256 public constant granularity = 1e18;
 
-    // uint256 public constant granularity = 1e18;
     constructor() public {
         totalSupply_ = INITIAL_SUPPLY;
         balances[msg.sender] = INITIAL_SUPPLY;
@@ -739,6 +742,7 @@ contract Isdt is PausableToken {
         
         return true;
     }
+
     function burn(address _to,uint256 _value) public onlyBurner isBurnlisted(_to) returns(bool) {
 
         _burn(_to, _value);
@@ -755,7 +759,7 @@ contract Isdt is PausableToken {
     
         emit Burnt(_who, _value);
         emit Transfer(_who, address(0), _value);
-		
+
         return true;
     }
 
@@ -774,7 +778,7 @@ contract Isdt is PausableToken {
 
     }
     
-    function vacummCleaner(address[] memory _from) public onlyTokenManager
+    function vacummClean(address[] memory _from) public onlyTokenManager
     returns (bool) {
       for(uint256 i = 0; i < _from.length; i++) {
         _vacummClean(_from[i]);
@@ -798,7 +802,7 @@ contract Isdt is PausableToken {
         
         return true;
     }
-
+    
     function transfer(address _to, uint256 _value) public
     onlyNotwWallet whenNotPaused whenPermitted(_msgSender()) onlyNotBank(_msgSender())
     onlyNotDepositWallet(_msgSender()) checkGranularity(_value)
@@ -810,9 +814,9 @@ contract Isdt is PausableToken {
         require(_amount % granularity == 0, "[mdf]Unable to modify token balances at this granularity");
         _;
     }
+
     function agree() public onlyJudge(_msgSender()) returns (bool) {
         require(voteBox[_msgSender()].result == false, "voted result already is true");
-        
         voteBox[_msgSender()].result = true;
         
         return true;
@@ -820,9 +824,7 @@ contract Isdt is PausableToken {
 
     function disagree() public onlyJudge(_msgSender()) returns (bool) {
         require(voteBox[_msgSender()].result == true, "voted result already is false");
-        
         voteBox[_msgSender()].result = false;
-        
         return true;
     }
 
@@ -861,9 +863,9 @@ contract Isdt is PausableToken {
         super.transfer(bank, _value);
         return true;
     }
+
     function withdrawFromBank(uint256 _value) public onlyBank
     returns (bool) {
-
         require(_voteResult(), "_voteResult is not valid");
         super.transfer(superOwner, _value);
         return true;
