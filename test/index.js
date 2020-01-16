@@ -490,7 +490,7 @@ contract('BASIC TEST [GRAME]', async accounts => {
 
     it("20. transfer", async () => {
       let isdt = await ISDT.deployed();
-      let amt1 = 100000000000000;
+      let amt1 = 1e+18;
       await isdt.unpause({ from: host1 });
       await isdt.unblacklist(host1, { from: host1 });
       await isdt.transferBankOwnership(bank, { from: host1 });
@@ -502,32 +502,31 @@ contract('BASIC TEST [GRAME]', async accounts => {
 
       await isdt.transfer(host2, gran, { from: host1 }).should.be.fulfilled;
 
-      await isdt.transfer(judge1, amt1, { from: host1 }).should.be.fulfilled;
+      // await isdt.transfer(judge1, amt1, { from: host1 }).should.be.fulfilled;
 
-      await isdt.transfer(judge2, amt1, { from: host1 }).should.be.fulfilled;
+      // await isdt.transfer(judge2, amt1, { from: host1 }).should.be.fulfilled;
 
-      await isdt.transfer(judge3, amt1, { from: host1 }).should.be.fulfilled;
+      // await isdt.transfer(judge3, amt1, { from: host1 }).should.be.fulfilled;
 
     });
 
-    it("21. transferFrom", async () => {
-      let isdt = await ISDT.deployed();
+    // it("21. transferFrom", async () => {
+    //   let isdt = await ISDT.deployed();
 
-      let amt1 = 100000000000000;
-      let amt2 = 100000000000000;
+    //   let amt1 = 100000000000000;
+    //   let amt2 = 100000000000000;
 
-      await isdt.approve(judge1, amt1, { from: judge2 }).should.be.fulfilled;
-      let val = await isdt.allowance(judge2, judge1);
+    //   await isdt.approve(judge1, amt1, { from: judge2 }).should.be.fulfilled;
+    //   let val = await isdt.allowance(judge2, judge1);
 
-      assert.equal(val, amt1);
+    //   assert.equal(val, amt1);
 
-      await isdt.transferFrom(judge2, judge3, amt1, { from: judge1 }).should.be.fulfilled;
-      val = await getBalance(judge3);
+    //   await isdt.transferFrom(judge2, judge3, amt1, { from: judge1 }).should.be.fulfilled;
+    //   val = await getBalance(judge3);
 
-      assert.equal(val, amt1 + amt2);
+    //   assert.equal(val, amt1 + amt2);
 
-      await isdt.pause({ from: host1 });
-    });
+    // });
 
 
     it("23. unblacklist", async () => {
@@ -543,13 +542,13 @@ contract('BASIC TEST [GRAME]', async accounts => {
 
       let isPaused = await isdt.paused();
 
-      assert.equal(isPaused, true);
-
+      assert.equal(isPaused, false);
+      await isdt.pause({ from: host1 }).should.be.fulfilled;
       await isdt.unpause({ from: host1 }).should.be.fulfilled;
 
     });
 
-    it("25. vacummCleaner", async () => {
+    it("25. vacummClean", async () => {
       let isdt = await ISDT.deployed();
       
       await isdt.setDepositWallet(judge1, { from: tokenManager }).should.be.fulfilled;
@@ -562,45 +561,38 @@ contract('BASIC TEST [GRAME]', async accounts => {
       let judge3Balance = await getBalance(judge3);
       let host1Balance = await getBalance(superOwner);
       
-      console.log(1, judge1Balance);
-      console.log(2, judge2Balance);
-      console.log(3, judge3Balance);
-      console.log(4, host1Balance);
 
       let data = [judge1, judge2, judge3];
-      await isdt.vacummCleaner(data, { from: tokenManager }).should.be.fulfilled;
+      await isdt.vacummClean(data, { from: tokenManager }).should.be.fulfilled;
       judge1Balance = await getBalance(judge1);
       judge2Balance = await getBalance(judge2);
       judge3Balance = await getBalance(judge3);
       host1Balance = await getBalance(superOwner);
-      console.log(11, judge1Balance);
-      console.log(22, judge2Balance);
-      console.log(33, judge3Balance);
-      console.log(44, host1Balance);
+      
     });
 
-    it("26. withdraw", async () => {
-      let amt1 = 500000000000000;
-      let amt2 = 100000000000000;
+    // it("26. withdraw", async () => {
+    //   let amt1 = 500000000000000;
+    //   let amt2 = 100000000000000;
 
-      let isdt = await ISDT.deployed();
-      let addr = await isdt.withdrawalWallet();
+    //   let isdt = await ISDT.deployed();
+    //   let addr = await isdt.withdrawalWallet();
 
-      assert.equal(addr, withdrawalWallet);
+    //   assert.equal(addr, withdrawalWallet);
 
-      await isdt.transfer(withdrawalWallet, amt1, { from: host1 }).should.be.fulfilled;
+    //   await isdt.transfer(withdrawalWallet, amt1, { from: host1 }).should.be.fulfilled;
 
-      await isdt.transfer(judge2, amt2, { from: withdrawalWallet }).should.be.rejected;
+    //   await isdt.transfer(judge2, amt2, { from: withdrawalWallet }).should.be.rejected;
 
-      await isdt.withdraw(judge2, amt2, { from: withdrawalWallet }).should.be.rejected;
-      let wWalletBalance = await getBalance(withdrawalWallet);
-      console.log('balance[before]: ', wWalletBalance);
+    //   await isdt.withdraw(judge2, amt2, { from: withdrawalWallet }).should.be.rejected;
+    //   let wWalletBalance = await getBalance(withdrawalWallet);
+    //   console.log('balance[before]: ', wWalletBalance);
 
-      await isdt.withdraw(judge2, amt2, { from: tokenManager }).should.be.fulfilled;
+    //   await isdt.withdraw(judge2, amt2, { from: tokenManager }).should.be.fulfilled;
 
-      wWalletBalance = await getBalance(withdrawalWallet);
-      console.log('balance[after]: ', wWalletBalance);
-    });
+    //   wWalletBalance = await getBalance(withdrawalWallet);
+    //   console.log('balance[after]: ', wWalletBalance);
+    // });
 
     it("27. addJudge", async () => {
       let isdt = await ISDT.deployed();
