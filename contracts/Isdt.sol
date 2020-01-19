@@ -850,7 +850,9 @@ contract Isdt is PausableToken {
         uint256 _value
     )
     public
-    whenNotPaused onlyNotwWallet whenPermitted(_from) onlyNotBank(_msgSender())
+    whenNotPaused onlyNotwWallet
+    onlyNotBank(_from) onlyNotBank(_msgSender())
+    whenPermitted(_msgSender()) whenPermitted(_from)
     onlyNotDepositWallet(_from) checkGranularity(_value)
     returns (bool)
     {
